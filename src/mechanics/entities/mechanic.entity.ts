@@ -3,11 +3,15 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  OneToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Maintenance } from '../../maintenance/entities/maintenance.entity.js';
+import { User } from '../../auth/user.entity.js';
 import { MechanicStatus } from '../mechanic-status.enum.js';
 
 @Entity('mechanics')
@@ -28,8 +32,12 @@ export class Mechanic {
   @Column({ type: 'enum', enum: MechanicStatus, default: MechanicStatus.ACTIVE })
   status!: MechanicStatus;
 
+  @OneToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'user_id' })
+  user!: Relation<User> | null;
+
   @OneToMany(() => Maintenance, (maintenance) => maintenance.mechanic)
-  maintenances!: Maintenance[];
+  maintenances!: Relation<Maintenance[]>;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;

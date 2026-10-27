@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Maintenance } from '../../maintenance/entities/maintenance.entity.js';
 import { WorkshopStatus } from '../workshop-status.enum.js';
 
@@ -24,7 +25,7 @@ export class Workshop {
   status!: WorkshopStatus;
 
   @OneToMany(() => Maintenance, (maintenance) => maintenance.workshop)
-  maintenances!: Maintenance[];
+  maintenances!: Relation<Maintenance[]>;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;

@@ -6,8 +6,10 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Mechanic } from '../../mechanics/entities/mechanic.entity.js';
 import { Vehicle } from '../../vehicles/entities/vehicle.entity.js';
 import { Workshop } from '../../workshops/entities/workshop.entity.js';
@@ -34,6 +36,9 @@ export class Maintenance {
   @Column({ name: 'scheduled_at', type: 'timestamptz' })
   scheduledAt!: Date;
 
+  @Column({ name: 'scheduled_end_at', type: 'timestamptz' })
+  scheduledEndAt!: Date;
+
   @Column({ type: 'enum', enum: MaintenanceStatus, default: MaintenanceStatus.SCHEDULED })
   status!: MaintenanceStatus;
 
@@ -51,15 +56,21 @@ export class Maintenance {
 
   @ManyToOne(() => Vehicle, (vehicle) => vehicle.maintenances, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'vehicle_id' })
-  vehicle!: Vehicle;
+  vehicle!: Relation<Vehicle>;
+
+  @RelationId((maintenance: Maintenance) => maintenance.vehicle)
+  vehicleId!: string;
 
   @ManyToOne(() => Mechanic, (mechanic) => mechanic.maintenances, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'mechanic_id' })
-  mechanic!: Mechanic;
+  mechanic!: Relation<Mechanic>;
+
+  @RelationId((maintenance: Maintenance) => maintenance.mechanic)
+  mechanicId!: string;
 
   @ManyToOne(() => Workshop, (workshop) => workshop.maintenances, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'workshop_id' })
-  workshop!: Workshop;
+  workshop!: Relation<Workshop>;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
