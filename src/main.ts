@@ -27,6 +27,7 @@ async function bootstrap() {
     .setTitle('FleetCore API')
     .setDescription('API de gestión de mantenimiento de flota')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, swaggerConfig));
 

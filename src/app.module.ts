@@ -6,6 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
+import { MaintenanceModule } from './maintenance/maintenance.module.js';
+import { MechanicsModule } from './mechanics/mechanics.module.js';
+import { VehiclesModule } from './vehicles/vehicles.module.js';
+import { WorkshopsModule } from './workshops/workshops.module.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { ApiKeyGuard } from './common/guards/api-key.guard.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
@@ -16,6 +20,10 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor.
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
+    VehiclesModule,
+    MechanicsModule,
+    WorkshopsModule,
+    MaintenanceModule,
     JwtModule.registerAsync({
       global: true,
       inject: [ConfigService],
