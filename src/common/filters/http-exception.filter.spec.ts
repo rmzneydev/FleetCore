@@ -1,13 +1,14 @@
 import { HttpStatus } from '@nestjs/common';
 import type { ArgumentsHost } from '@nestjs/common';
+import { jest } from '@jest/globals';
 import { HttpExceptionFilter } from './http-exception.filter.js';
 
 describe('HttpExceptionFilter', () => {
   const filter = new HttpExceptionFilter();
 
   function createHost() {
-    const json = vi.fn();
-    const status = vi.fn().mockReturnValue({ json });
+    const json = jest.fn();
+    const status = jest.fn().mockReturnValue({ json });
     const host = {
       switchToHttp: () => ({
         getRequest: () => ({ url: '/vehicles' }),

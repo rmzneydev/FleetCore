@@ -1,0 +1,10 @@
+process.env.PORT = process.env.PORT || '3000';
+process.env.DB_HOST = 'localhost';
+process.env.DB_PORT = process.env.DB_PORT || '5432';
+process.env.DB_USERNAME = process.env.DB_USERNAME || 'FleetUser';
+process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'FleetPassword';
+process.env.DB_NAME = process.env.DB_NAME || 'postgres';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-for-e2e-1234567890';
+process.env.JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
+process.env.API_KEYS = process.env.API_KEYS || 'demo-key-partner-1';
+process.env.DB_SYNCHRONIZE = 'false';

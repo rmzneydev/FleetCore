@@ -1,4 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
+import { jest } from '@jest/globals';
 import type { Repository } from 'typeorm';
 import { Maintenance } from '../maintenance/entities/maintenance.entity.js';
 import { MaintenanceStatus } from '../maintenance/maintenance-status.enum.js';
@@ -26,8 +27,8 @@ describe('IntegrationsService', () => {
       mechanic: { id: 1, name: 'Carlos Pérez', email: 'private@example.test' },
       workshop: { id: 1, name: 'Taller Norte', address: 'Dirección privada' },
     };
-    const vehicles = { findOneBy: vi.fn().mockResolvedValue(vehicle) };
-    const maintenances = { find: vi.fn().mockResolvedValue([completedMaintenance]) };
+    const vehicles = { findOneBy: jest.fn().mockResolvedValue(vehicle) };
+    const maintenances = { find: jest.fn().mockResolvedValue([completedMaintenance]) };
     const service = new IntegrationsService(
       vehicles as unknown as Repository<Vehicle>,
       maintenances as unknown as Repository<Maintenance>,
@@ -69,8 +70,8 @@ describe('IntegrationsService', () => {
   });
 
   it('returns not found for an unknown plate', async () => {
-    const vehicles = { findOneBy: vi.fn().mockResolvedValue(null) };
-    const maintenances = { find: vi.fn() };
+    const vehicles = { findOneBy: jest.fn().mockResolvedValue(null) };
+    const maintenances = { find: jest.fn() };
     const service = new IntegrationsService(
       vehicles as unknown as Repository<Vehicle>,
       maintenances as unknown as Repository<Maintenance>,

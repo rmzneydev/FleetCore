@@ -1,0 +1,41 @@
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  roots: ['<rootDir>/src', '<rootDir>/test'],
+  testMatch: ['**/*.spec.ts'],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+  transform: {
+    '^.+\\.ts$': ['ts-jest', { useESM: true, tsconfig: '<rootDir>/tsconfig.json' }],
+  },
+  extensionsToTreatAsEsm: ['.ts'],
+  collectCoverageFrom: [
+    'src/common/**/*.ts',
+    'src/integrations/**/*.ts',
+    'src/maintenance/**/*.ts',
+    '!src/**/*.spec.ts',
+    '!src/**/*.d.ts',
+    '!src/**/*.entity.ts',
+    '!src/**/*.enum.ts',
+    '!src/**/*.dto.ts',
+    '!src/**/*.module.ts',
+    '!src/**/*.controller.ts',
+    '!src/database/**/*.ts',
+    '!src/auth/**/*.ts',
+    '!src/vehicles/**/*.ts',
+    '!src/workshops/**/*.ts',
+    '!src/mechanics/**/*.ts',
+    '!src/app.module.ts',
+    '!src/main.ts',
+    '!src/seed.ts',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 40,
+      functions: 40,
+      lines: 40,
+      statements: 40,
+    },
+  },
+};

@@ -1,4 +1,5 @@
 import { BadRequestException, ConflictException, ForbiddenException } from '@nestjs/common';
+import { jest } from '@jest/globals';
 import type { DataSource, EntityManager, Repository } from 'typeorm';
 import { UserRole } from '../auth/role.enum.js';
 import { Mechanic } from '../mechanics/entities/mechanic.entity.js';
@@ -10,7 +11,7 @@ import { MaintenanceService } from './maintenance.service.js';
 
 describe('MaintenanceService', () => {
   it('rejects an invalid scheduled interval before opening a transaction', async () => {
-    const transaction = vi.fn();
+    const transaction = jest.fn();
     const service = new MaintenanceService(
       { transaction } as unknown as DataSource,
       {} as Repository<never>,
@@ -51,41 +52,41 @@ describe('MaintenanceService', () => {
       ];
       let queryIndex = 0;
       const maintenanceRepository = {
-        findOneBy: vi.fn().mockResolvedValue(currentMaintenance),
-        createQueryBuilder: vi.fn(() => {
+        findOneBy: jest.fn().mockResolvedValue(currentMaintenance),
+        createQueryBuilder: jest.fn(() => {
           const result = queryResults[queryIndex++];
           const queryBuilder = {
-            setLock: vi.fn().mockReturnThis(),
-            where: vi.fn().mockReturnThis(),
-            andWhere: vi.fn().mockReturnThis(),
-            getOne: vi.fn().mockResolvedValue(result),
+            setLock: jest.fn().mockReturnThis(),
+            where: jest.fn().mockReturnThis(),
+            andWhere: jest.fn().mockReturnThis(),
+            getOne: jest.fn().mockResolvedValue(result),
           };
           return queryBuilder;
         }),
-        save: vi.fn(),
+        save: jest.fn(),
       };
       const vehicleRepository = {
-        findOne: vi.fn().mockResolvedValue({ id: 1, plate: 'ABC123' }),
-        save: vi.fn(),
+        findOne: jest.fn().mockResolvedValue({ id: 1, plate: 'ABC123' }),
+        save: jest.fn(),
       };
       const mechanicRepository = {
-        findOne: vi.fn().mockResolvedValue({ id: 1, userId: null }),
+        findOne: jest.fn().mockResolvedValue({ id: 1, userId: null }),
       };
-      const userRepository = { findOneBy: vi.fn() };
+      const userRepository = { findOneBy: jest.fn() };
       const repositories = new Map([
         [Maintenance, maintenanceRepository],
         [Vehicle, vehicleRepository],
         [Mechanic, mechanicRepository],
         [User, userRepository],
       ]);
-      const transaction = vi.fn(async (callback) =>
+      const transaction = jest.fn(async (callback) =>
         callback({
           getRepository: (entity: Function) => repositories.get(entity),
         } as unknown as EntityManager),
       );
       const service = new MaintenanceService(
         { transaction } as unknown as DataSource,
-        { findOne: vi.fn() } as unknown as Repository<Maintenance>,
+        { findOne: jest.fn() } as unknown as Repository<Maintenance>,
       );
 
       await expect(
@@ -109,18 +110,18 @@ describe('MaintenanceService', () => {
       status: MaintenanceStatus.SCHEDULED,
     };
     const mechanicRepository = {
-      findOne: vi.fn().mockResolvedValue({ userId: 'technician-owner' }),
+      findOne: jest.fn().mockResolvedValue({ userId: 'technician-owner' }),
     };
     const maintenanceRepository = {
-      findOneBy: vi.fn().mockResolvedValue(maintenance),
+      findOneBy: jest.fn().mockResolvedValue(maintenance),
     };
     const repositories = new Map([
       [Maintenance, maintenanceRepository],
-      [Vehicle, { findOne: vi.fn().mockResolvedValue({ id: 1 }) }],
+      [Vehicle, { findOne: jest.fn().mockResolvedValue({ id: 1 }) }],
       [Mechanic, mechanicRepository],
-      [User, { findOneBy: vi.fn().mockResolvedValue({ id: 'technician-owner' }) }],
+      [User, { findOneBy: jest.fn().mockResolvedValue({ id: 'technician-owner' }) }],
     ]);
-    const transaction = vi.fn(async (callback) =>
+    const transaction = jest.fn(async (callback) =>
       callback({
         getRepository: (entity: Function) => repositories.get(entity),
       } as unknown as EntityManager),
@@ -159,32 +160,32 @@ describe('MaintenanceService', () => {
         status: initialVehicleStatus,
       };
       const transactionMaintenanceRepository = {
-        findOneBy: vi.fn().mockResolvedValue(maintenance),
-        createQueryBuilder: vi.fn(() => ({
-          setLock: vi.fn().mockReturnThis(),
-          where: vi.fn().mockReturnThis(),
-          getOne: vi.fn().mockResolvedValue(maintenance),
+        findOneBy: jest.fn().mockResolvedValue(maintenance),
+        createQueryBuilder: jest.fn(() => ({
+          setLock: jest.fn().mockReturnThis(),
+          where: jest.fn().mockReturnThis(),
+          getOne: jest.fn().mockResolvedValue(maintenance),
         })),
-        save: vi.fn().mockImplementation(async (entity) => entity),
+        save: jest.fn().mockImplementation(async (entity) => entity),
       };
       const vehicleRepository = {
-        findOne: vi.fn().mockResolvedValue(vehicle),
-        save: vi.fn().mockImplementation(async (entity) => entity),
+        findOne: jest.fn().mockResolvedValue(vehicle),
+        save: jest.fn().mockImplementation(async (entity) => entity),
       };
       const repositories = new Map([
         [Maintenance, transactionMaintenanceRepository],
         [Vehicle, vehicleRepository],
-        [Mechanic, { findOne: vi.fn().mockResolvedValue({ userId: null }) }],
-        [User, { findOneBy: vi.fn() }],
+        [Mechanic, { findOne: jest.fn().mockResolvedValue({ userId: null }) }],
+        [User, { findOneBy: jest.fn() }],
       ]);
-      const transaction = vi.fn(async (callback) =>
+      const transaction = jest.fn(async (callback) =>
         callback({
           getRepository: (entity: Function) => repositories.get(entity),
         } as unknown as EntityManager),
       );
       const service = new MaintenanceService(
         { transaction } as unknown as DataSource,
-        { findOne: vi.fn().mockResolvedValue(maintenance) } as unknown as Repository<Maintenance>,
+        { findOne: jest.fn().mockResolvedValue(maintenance) } as unknown as Repository<Maintenance>,
       );
 
       await service.updateStatus(
