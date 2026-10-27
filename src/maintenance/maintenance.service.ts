@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
+import type { EntityManager } from 'typeorm';
 import type { AuthenticatedUser } from '../auth/jwt-payload.interface.js';
 import { UserRole } from '../auth/role.enum.js';
 import { User } from '../auth/user.entity.js';
@@ -19,10 +20,11 @@ import { WorkshopStatus } from '../workshops/workshop-status.enum.js';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto.js';
 import { UpdateMaintenanceStatusDto } from './dto/update-maintenance-status.dto.js';
 import { Maintenance } from './entities/maintenance.entity.js';
-import { MaintenanceStatus } from './maintenance-status.enum.js';
+import { MaintenanceStatusLog } from './entities/maintenance-status-log.entity.js';
+import { ACTIVE_MAINTENANCE_STATUSES, MaintenanceStatus } from './maintenance-status.enum.js';
 import { isAllowedMaintenanceTransition } from './maintenance.rules.js';
 
-const ACTIVE_STATUSES = [MaintenanceStatus.SCHEDULED, MaintenanceStatus.IN_PROGRESS];
+const ACTIVE_STATUSES = [...ACTIVE_MAINTENANCE_STATUSES];
 const MAINTENANCE_RELATIONS = { vehicle: true, mechanic: true, workshop: true } as const;
 
 @Injectable()
@@ -31,9 +33,11 @@ export class MaintenanceService {
     private readonly dataSource: DataSource,
     @InjectRepository(Maintenance)
     private readonly maintenances: Repository<Maintenance>,
+    @InjectRepository(MaintenanceStatusLog)
+    private readonly statusLogs: Repository<MaintenanceStatusLog>,
   ) {}
 
-  async create(dto: CreateMaintenanceDto): Promise<Maintenance> {
+  async create(dto: CreateMaintenanceDto, actor: AuthenticatedUser): Promise<Maintenance> {
     const scheduledAt = new Date(dto.scheduledAt);
     const scheduledEndAt = new Date(dto.scheduledEndAt);
     if (scheduledEndAt <= scheduledAt) {
@@ -110,7 +114,9 @@ export class MaintenanceService {
         mechanic,
         workshop,
       });
-      return (await maintenances.save(maintenance)).id;
+      const savedMaintenance = await maintenances.save(maintenance);
+      await this.recordStatusChange(manager, savedMaintenance, null, MaintenanceStatus.SCHEDULED, actor);
+      return savedMaintenance.id;
     });
 
     return this.findOne(maintenanceId);
@@ -284,12 +290,49 @@ export class MaintenanceService {
         }
       }
 
+      const previousStatus = maintenance.status;
       maintenance.status = dto.status;
       await vehicles.save(vehicle);
       await maintenances.save(maintenance);
+      // El log se escribe en la misma transacción: si el cambio falla, no queda auditoría huérfana.
+      await this.recordStatusChange(manager, maintenance, previousStatus, dto.status, actor);
     });
 
     return this.findOne(id);
+  }
+
+  findAuditLog(): Promise<MaintenanceStatusLog[]> {
+    return this.statusLogs.find({
+      relations: { maintenance: true, changedBy: true },
+      order: { createdAt: 'DESC', id: 'DESC' },
+    });
+  }
+
+  async findMaintenanceAuditLog(id: number): Promise<MaintenanceStatusLog[]> {
+    await this.findOne(id);
+    return this.statusLogs.find({
+      where: { maintenance: { id } },
+      relations: { changedBy: true },
+      order: { createdAt: 'ASC', id: 'ASC' },
+    });
+  }
+
+  private async recordStatusChange(
+    manager: EntityManager,
+    maintenance: Maintenance,
+    fromStatus: MaintenanceStatus | null,
+    toStatus: MaintenanceStatus,
+    actor: AuthenticatedUser,
+  ): Promise<void> {
+    const statusLogs = manager.getRepository(MaintenanceStatusLog);
+    await statusLogs.save(
+      statusLogs.create({
+        maintenance: { id: maintenance.id },
+        fromStatus,
+        toStatus,
+        changedBy: { id: actor.userId },
+      }),
+    );
   }
 
   async findOne(id: number): Promise<Maintenance> {

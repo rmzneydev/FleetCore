@@ -3,6 +3,7 @@ import dataSource from './database/data-source.js';
 import { User } from './auth/user.entity.js';
 import { UserRole } from './auth/role.enum.js';
 import { Maintenance } from './maintenance/entities/maintenance.entity.js';
+import { MaintenanceStatusLog } from './maintenance/entities/maintenance-status-log.entity.js';
 import { MaintenanceStatus } from './maintenance/maintenance-status.enum.js';
 import { MaintenanceType } from './maintenance/maintenance-type.enum.js';
 import { Mechanic } from './mechanics/entities/mechanic.entity.js';
@@ -30,6 +31,18 @@ const DEMO_USERS = [
   },
 ] as const;
 
+// Recorrido de estados que se registra en auditoría para cada mantenimiento demo.
+const STATUS_PATHS: Record<MaintenanceStatus, MaintenanceStatus[]> = {
+  [MaintenanceStatus.SCHEDULED]: [MaintenanceStatus.SCHEDULED],
+  [MaintenanceStatus.IN_PROGRESS]: [MaintenanceStatus.SCHEDULED, MaintenanceStatus.IN_PROGRESS],
+  [MaintenanceStatus.COMPLETED]: [
+    MaintenanceStatus.SCHEDULED,
+    MaintenanceStatus.IN_PROGRESS,
+    MaintenanceStatus.COMPLETED,
+  ],
+  [MaintenanceStatus.CANCELLED]: [MaintenanceStatus.SCHEDULED, MaintenanceStatus.CANCELLED],
+};
+
 async function seed(): Promise<void> {
   await dataSource.initialize();
   try {
@@ -40,6 +53,7 @@ async function seed(): Promise<void> {
       const workshopsRepository = manager.getRepository(Workshop);
       const vehiclesRepository = manager.getRepository(Vehicle);
       const maintenancesRepository = manager.getRepository(Maintenance);
+      const statusLogsRepository = manager.getRepository(MaintenanceStatusLog);
 
       const userByEmail = new Map<string, User>();
       const rounds = Number(process.env.BCRYPT_SALT_ROUNDS ?? 10);
@@ -177,7 +191,21 @@ async function seed(): Promise<void> {
         });
         const maintenance = existing ?? maintenancesRepository.create();
         Object.assign(maintenance, maintenanceDataItem);
-        await maintenancesRepository.save(maintenance);
+        const savedMaintenance = await maintenancesRepository.save(maintenance);
+
+        // Solo se crea la auditoría la primera vez para no duplicarla al reejecutar el seed.
+        if (await statusLogsRepository.existsBy({ maintenance: { id: savedMaintenance.id } })) continue;
+        const path = STATUS_PATHS[savedMaintenance.status];
+        await statusLogsRepository.save(
+          path.map((toStatus, index) =>
+            statusLogsRepository.create({
+              maintenance: savedMaintenance,
+              fromStatus: index === 0 ? null : path[index - 1],
+              toStatus,
+              changedBy: userByEmail.get(DEMO_USERS[0].email)!,
+            }),
+          ),
+        );
       }
     });
 

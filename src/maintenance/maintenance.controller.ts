@@ -32,8 +32,8 @@ export class MaintenanceController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Programar un mantenimiento (ADMIN)' })
   @ApiEnvelopeResponse(201, 'Mantenimiento programado; requiere rol ADMIN')
-  create(@Body() dto: CreateMaintenanceDto) {
-    return this.maintenanceService.create(dto);
+  create(@Body() dto: CreateMaintenanceDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.maintenanceService.create(dto, user);
   }
 
   @Get()
@@ -50,6 +50,14 @@ export class MaintenanceController {
   @ApiEnvelopeResponse(200, 'Mantenimientos programados y en proceso')
   findActive() {
     return this.maintenanceService.findActive();
+  }
+
+  @Get('audit')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Consultar la auditoría de cambios de estado de todos los mantenimientos (ADMIN)' })
+  @ApiEnvelopeResponse(200, 'Cambios de estado, del más reciente al más antiguo, con el usuario que los hizo')
+  findAuditLog() {
+    return this.maintenanceService.findAuditLog();
   }
 
   @Get('my')
@@ -82,6 +90,14 @@ export class MaintenanceController {
   @ApiEnvelopeResponse(200, 'Mantenimientos asociados al mecánico')
   findByMechanic(@Param('id', ParseIntPipe) id: number) {
     return this.maintenanceService.findByMechanic(id);
+  }
+
+  @Get(':id/audit')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Consultar la auditoría de cambios de estado de un mantenimiento (ADMIN)' })
+  @ApiEnvelopeResponse(200, 'Cambios de estado del mantenimiento en orden cronológico')
+  findMaintenanceAuditLog(@Param('id', ParseIntPipe) id: number) {
+    return this.maintenanceService.findMaintenanceAuditLog(id);
   }
 
   @Patch(':id/status')

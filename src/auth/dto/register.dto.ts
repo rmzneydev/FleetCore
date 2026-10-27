@@ -1,15 +1,13 @@
 import {
   IsEmail,
-  IsEnum,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRole } from '../role.enum.js';
 
 export class RegisterDto {
-  @ApiProperty({ example: 'admin@fleetcore.com' })
+  @ApiProperty({ example: 'tecnico@fleetcore.com' })
   @IsEmail()
   @MaxLength(255)
   email!: string;
@@ -19,8 +17,4 @@ export class RegisterDto {
   @MinLength(8)
   @MaxLength(72)
   password!: string;
-
-  @ApiProperty({ enum: UserRole, example: UserRole.TECHNICIAN })
-  @IsEnum(UserRole)
-  role!: UserRole;
 }

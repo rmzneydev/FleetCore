@@ -23,7 +23,6 @@ export class WorkshopsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar talleres activos' })
   @ApiOperation({ summary: 'Listar talleres activos (ADMIN o TECHNICIAN)' })
   @ApiEnvelopeResponse(200, 'Lista de talleres activos')
   findAll() {
@@ -31,7 +30,6 @@ export class WorkshopsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Consultar taller por ID' })
   @ApiOperation({ summary: 'Consultar taller por ID (ADMIN o TECHNICIAN)' })
   @ApiEnvelopeResponse(200, 'Taller encontrado')
   findOne(@Param('id', ParseIntPipe) id: number) {

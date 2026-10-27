@@ -23,7 +23,6 @@ export class VehiclesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar vehículos' })
   @ApiOperation({ summary: 'Listar vehículos (ADMIN o TECHNICIAN)' })
   @ApiEnvelopeResponse(200, 'Lista de vehículos')
   findAll() {
@@ -31,7 +30,6 @@ export class VehiclesController {
   }
 
   @Get('plate/:plate')
-  @ApiOperation({ summary: 'Consultar vehículo por placa' })
   @ApiOperation({ summary: 'Consultar vehículo por placa (ADMIN o TECHNICIAN)' })
   @ApiEnvelopeResponse(200, 'Vehículo encontrado')
   findByPlate(@Param('plate') plate: string) {
@@ -39,7 +37,6 @@ export class VehiclesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Consultar vehículo por ID' })
   @ApiOperation({ summary: 'Consultar vehículo por ID (ADMIN o TECHNICIAN)' })
   @ApiEnvelopeResponse(200, 'Vehículo encontrado')
   findOne(@Param('id', ParseIntPipe) id: number) {

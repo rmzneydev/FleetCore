@@ -24,22 +24,17 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
-  async register(dto: RegisterDto, role = UserRole.TECHNICIAN) {
-    const email = dto.email.trim().toLowerCase();
-    if (await this.users.findOneBy({ email })) {
-      throw new ConflictException('El correo ya está registrado');
-    }
-
-    const user = this.users.create({
-      email,
-      passwordHash: await hash(dto.password, this.getSaltRounds()),
-      role,
-    });
-    const savedUser = await this.users.save(user);
+  // El registro público nunca acepta el rol desde el cliente para evitar escalar a ADMIN.
+  async register(dto: RegisterDto) {
+    const savedUser = await this.saveNewUser(dto, UserRole.TECHNICIAN);
     return { user: this.toSafeUser(savedUser), ...(await this.createToken(savedUser)) };
   }
 
   async createUser(dto: RegisterDto, role: UserRole): Promise<SafeUser> {
+    return this.toSafeUser(await this.saveNewUser(dto, role));
+  }
+
+  private async saveNewUser(dto: RegisterDto, role: UserRole): Promise<User> {
     const email = dto.email.trim().toLowerCase();
     if (await this.users.findOneBy({ email })) {
       throw new ConflictException('El correo ya está registrado');
@@ -50,7 +45,7 @@ export class AuthService {
       passwordHash: await hash(dto.password, this.getSaltRounds()),
       role,
     });
-    return this.toSafeUser(await this.users.save(user));
+    return this.users.save(user);
   }
 
   async login(dto: LoginDto) {

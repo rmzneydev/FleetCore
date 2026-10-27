@@ -23,7 +23,6 @@ export class MechanicsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar mecánicos' })
   @ApiOperation({ summary: 'Listar mecánicos (ADMIN o TECHNICIAN)' })
   @ApiEnvelopeResponse(200, 'Lista de mecánicos')
   findAll() {
@@ -31,7 +30,6 @@ export class MechanicsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Consultar mecánico por ID' })
   @ApiOperation({ summary: 'Consultar mecánico por ID (ADMIN o TECHNICIAN)' })
   @ApiEnvelopeResponse(200, 'Mecánico encontrado')
   findOne(@Param('id', ParseIntPipe) id: number) {

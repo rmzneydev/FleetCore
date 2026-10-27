@@ -35,7 +35,12 @@ export class UpdateVehicleDto {
   @Min(0)
   mileage?: number;
 
-  @ApiPropertyOptional({ enum: VehicleStatus, example: VehicleStatus.AVAILABLE })
+  @ApiPropertyOptional({
+    enum: VehicleStatus,
+    example: VehicleStatus.AVAILABLE,
+    description:
+      'Solo AVAILABLE o INACTIVE. IN_MAINTENANCE lo asigna el flujo de mantenimientos y no se puede cambiar mientras haya uno en proceso.',
+  })
   @IsOptional()
   @IsEnum(VehicleStatus)
   status?: VehicleStatus;

@@ -40,7 +40,7 @@ export class IntegrationsService {
         status: maintenance.status,
         description: maintenance.description,
         mileage: maintenance.mileage,
-        cost: maintenance.finalCost,
+        cost: maintenance.finalCost === null ? null : Number(maintenance.finalCost),
         finishedAt: maintenance.finishedAt,
         mechanic: {
           id: maintenance.mechanic.id,

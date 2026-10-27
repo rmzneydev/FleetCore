@@ -4,6 +4,7 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InitialFleetSchema1761572400000 } from './database/migrations/InitialFleetSchema1761572400000.js';
+import { MaintenanceStatusLogs1761580000000 } from './database/migrations/MaintenanceStatusLogs1761580000000.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
@@ -44,7 +45,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor.
         database: config.getOrThrow<string>('DB_NAME'),
         autoLoadEntities: true,
         synchronize: config.get<string>('DB_SYNCHRONIZE') === 'true',
-        migrations: [InitialFleetSchema1761572400000],
+        migrations: [InitialFleetSchema1761572400000, MaintenanceStatusLogs1761580000000],
         migrationsRun: false,
       }),
     }),

@@ -6,9 +6,8 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
 
 describe('JwtAuthGuard', () => {
   it('allows public routes without calling Passport', async () => {
-    const reflector = {
-      getAllAndOverride: jest.fn().mockReturnValue(true),
-    } as unknown as Reflector;
+    const getAllAndOverride = jest.fn().mockReturnValue(true);
+    const reflector = { getAllAndOverride } as unknown as Reflector;
     const guard = new JwtAuthGuard(reflector);
     const canActivateSpy = jest.spyOn(AuthGuard('jwt').prototype, 'canActivate');
 
@@ -18,15 +17,14 @@ describe('JwtAuthGuard', () => {
     } as any);
 
     expect(result).toBe(true);
-    expect(reflector.getAllAndOverride).toHaveBeenCalledWith(IS_PUBLIC_KEY, [expect.any(Object), expect.any(Object)]);
+    expect(getAllAndOverride).toHaveBeenCalledWith(IS_PUBLIC_KEY, [expect.any(Object), expect.any(Object)]);
     expect(canActivateSpy).not.toHaveBeenCalled();
     canActivateSpy.mockRestore();
   });
 
   it('delegates to Passport for protected routes', async () => {
-    const reflector = {
-      getAllAndOverride: jest.fn().mockReturnValue(false),
-    } as unknown as Reflector;
+    const getAllAndOverride = jest.fn().mockReturnValue(false);
+    const reflector = { getAllAndOverride } as unknown as Reflector;
     const guard = new JwtAuthGuard(reflector);
     const canActivateSpy = jest.spyOn(AuthGuard('jwt').prototype, 'canActivate').mockResolvedValue(true);
 

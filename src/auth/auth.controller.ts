@@ -22,11 +22,15 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  @ApiOperation({ summary: 'Registrar usuario con rol ADMIN o TECHNICIAN' })
+  @ApiOperation({
+    summary: 'Registrar usuario TECHNICIAN',
+    description:
+      'El registro público siempre crea cuentas TECHNICIAN. Las cuentas ADMIN solo las crea un administrador con POST /auth/users.',
+  })
   @ApiCommonErrorResponses([400, 409, 500])
   @ApiEnvelopeResponse(201, 'Usuario registrado y token emitido')
   register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto, dto.role);
+    return this.authService.register(dto);
   }
 
   @Public()

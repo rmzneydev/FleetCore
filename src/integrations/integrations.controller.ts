@@ -42,7 +42,7 @@ export class IntegrationsController {
               status: 'COMPLETED',
               description: 'Cambio de aceite y filtros',
               mileage: 45000,
-              cost: '350000.00',
+              cost: 350000,
               finishedAt: '2026-09-15T16:30:00.000Z',
               mechanic: { id: 1, name: 'Carlos Pérez' },
               workshop: { id: 1, name: 'Taller Norte' },

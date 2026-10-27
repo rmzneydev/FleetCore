@@ -74,10 +74,18 @@ Override the passwords with `SEED_ADMIN_PASSWORD`, `SEED_TECHNICIAN_ONE_PASSWORD
 
 ## API
 
-- `POST /auth/register` and `POST /auth/login` register a user and issue a JWT.
+- `POST /auth/register` registers a `TECHNICIAN` account and issues a JWT; public sign-up cannot choose a role. `POST /auth/login` issues a JWT.
+- `POST /auth/users` (ADMIN) creates an account with any role, including `ADMIN`.
 - `GET /auth/me` returns the authenticated user.
 - Vehicle, mechanic, workshop, and maintenance endpoints enforce permissions for the `ADMIN` and `TECHNICIAN` roles.
+- `GET /maintenances/audit` and `GET /maintenances/:id/audit` (ADMIN) list every maintenance status change with the previous status, the new status, the user who made it, and the time.
 - `GET /integrations/vehicles/:plate/maintenances` returns completed maintenance history and requires the `x-api-key` header configured through `API_KEYS`.
+
+### Business rules worth knowing
+
+- A vehicle's `IN_MAINTENANCE` status is set and cleared only by the maintenance workflow. Manual updates may switch a vehicle only between `AVAILABLE` and `INACTIVE`.
+- Vehicles, mechanics, and workshops with `SCHEDULED` or `IN_PROGRESS` maintenances cannot be inactivated (`409`); finish or cancel those maintenances first.
+- "Only one active maintenance at a time" is enforced per time window: a vehicle or mechanic cannot have overlapping `SCHEDULED`/`IN_PROGRESS` maintenances, and cannot have two `IN_PROGRESS` at once. Back-to-back windows (e.g. 7:30–9:00 and 9:00–10:00) are allowed, matching the mechanic scheduling examples in the requirements.
 - Swagger UI is available at `/docs`.
 
 Private endpoints require `Authorization: Bearer <token>`.
@@ -95,3 +103,7 @@ npm run test:e2e
 ```
 
 The e2e tests require PostgreSQL reachable from the host at `localhost`. Their setup accepts environment values for the port, database name, and credentials.
+
+## Author
+
+### Neyder Ramirez - RA Node/NestJS AM

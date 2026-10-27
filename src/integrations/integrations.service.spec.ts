@@ -60,7 +60,7 @@ describe('IntegrationsService', () => {
           status: 'COMPLETED',
           description: 'Cambio de aceite',
           mileage: 45000,
-          cost: '350000.00',
+          cost: 350000,
           finishedAt: completedMaintenance.finishedAt,
           mechanic: { id: 1, name: 'Carlos Pérez' },
           workshop: { id: 1, name: 'Taller Norte' },

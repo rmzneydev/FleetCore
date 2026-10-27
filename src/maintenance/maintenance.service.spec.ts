@@ -6,6 +6,7 @@ import { Mechanic } from '../mechanics/entities/mechanic.entity.js';
 import { Vehicle } from '../vehicles/entities/vehicle.entity.js';
 import { User } from '../auth/user.entity.js';
 import { Maintenance } from './entities/maintenance.entity.js';
+import { MaintenanceStatusLog } from './entities/maintenance-status-log.entity.js';
 import { MaintenanceStatus } from './maintenance-status.enum.js';
 import { MaintenanceService } from './maintenance.service.js';
 
@@ -14,6 +15,7 @@ describe('MaintenanceService', () => {
     const transaction = jest.fn();
     const service = new MaintenanceService(
       { transaction } as unknown as DataSource,
+      {} as Repository<never>,
       {} as Repository<never>,
     );
 
@@ -27,7 +29,7 @@ describe('MaintenanceService', () => {
         vehicleId: 1,
         mechanicId: 1,
         workshopId: 1,
-      }),
+      }, { userId: 1, email: 'admin@example.com', role: UserRole.ADMIN }),
     ).rejects.toBeInstanceOf(BadRequestException);
 
     expect(transaction).not.toHaveBeenCalled();
@@ -87,6 +89,7 @@ describe('MaintenanceService', () => {
       const service = new MaintenanceService(
         { transaction } as unknown as DataSource,
         { findOne: jest.fn() } as unknown as Repository<Maintenance>,
+        {} as Repository<MaintenanceStatusLog>,
       );
 
       await expect(
@@ -129,6 +132,7 @@ describe('MaintenanceService', () => {
     const service = new MaintenanceService(
       { transaction } as unknown as DataSource,
       {} as Repository<Maintenance>,
+      {} as Repository<MaintenanceStatusLog>,
     );
 
     await expect(
@@ -172,11 +176,16 @@ describe('MaintenanceService', () => {
         findOne: jest.fn().mockResolvedValue(vehicle),
         save: jest.fn().mockImplementation(async (entity) => entity),
       };
-      const repositories = new Map([
+      const statusLogRepository = {
+        create: jest.fn((entity) => entity),
+        save: jest.fn().mockImplementation(async (entity) => entity),
+      };
+      const repositories = new Map<Function, unknown>([
         [Maintenance, transactionMaintenanceRepository],
         [Vehicle, vehicleRepository],
         [Mechanic, { findOne: jest.fn().mockResolvedValue({ userId: null }) }],
         [User, { findOneBy: jest.fn() }],
+        [MaintenanceStatusLog, statusLogRepository],
       ]);
       const transaction = jest.fn(async (callback) =>
         callback({
@@ -186,14 +195,21 @@ describe('MaintenanceService', () => {
       const service = new MaintenanceService(
         { transaction } as unknown as DataSource,
         { findOne: jest.fn().mockResolvedValue(maintenance) } as unknown as Repository<Maintenance>,
+        {} as Repository<MaintenanceStatusLog>,
       );
 
       await service.updateStatus(
         maintenance.id,
         { status: MaintenanceStatus.CANCELLED },
-        { userId: 'admin-1', email: 'admin@example.com', role: UserRole.ADMIN },
+        { userId: 1, email: 'admin@example.com', role: UserRole.ADMIN },
       );
 
+      expect(statusLogRepository.save).toHaveBeenCalledWith({
+        maintenance: { id: maintenance.id },
+        fromStatus: initialStatus,
+        toStatus: MaintenanceStatus.CANCELLED,
+        changedBy: { id: 1 },
+      });
       expect(vehicle.status).toBe(expectedVehicleStatus);
       expect(vehicleRepository.save).toHaveBeenCalledWith(vehicle);
       expect(transactionMaintenanceRepository.save).toHaveBeenCalledWith(maintenance);
