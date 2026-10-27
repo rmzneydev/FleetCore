@@ -7,7 +7,7 @@ services:
     container_name: FleetCoreAPI
 
     ports:
-      - "${APP_PORT}:${APP_PORT}"
+      - "${PORT}:${PORT}"
 
     volumes:
       - .:/app
@@ -18,32 +18,26 @@ services:
     env_file:
       - ./.env
     environment:
-      - NODE_ENV=${NODE_ENV}
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}
-    deploy:
-      resources:
-        limits:
-          cpus: "${DB_CPU_LIMIT}"
-          memory: ${DB_MEM_LIMIT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - NODE_ENV=development
     networks:
       - backend
 
   db:
     image: postgres:16-alpine
-    container_name: "${DB_CONTAINER_NAME}"
+    container_name: FleetCoreDatabase
     ports:
-     - "${POSTGRES_PORT}:5432"
+      - "${DB_PORT}:5432"
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: "${DB_CPU_LIMIT}"
-          memory: ${DB_MEM_LIMIT}
     networks:
       - backend
 
