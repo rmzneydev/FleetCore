@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { AuthModule } from './auth/auth.module.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { ApiKeyGuard } from './common/guards/api-key.guard.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
@@ -14,6 +15,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor.
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
     JwtModule.registerAsync({
       global: true,
       inject: [ConfigService],
