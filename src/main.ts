@@ -25,7 +25,9 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('FleetCore API')
-    .setDescription('API de gestión de mantenimiento de flota')
+    .setDescription(
+      'API REST de gestión de flota. Las respuestas exitosas usan { success, statusCode, data, timestamp }; los errores usan { success, statusCode, message, path, timestamp }. Las rutas privadas requieren Bearer JWT y autorización por rol. La consulta de integración requiere el esquema x-api-key.',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .addApiKey({ type: 'apiKey', in: 'header', name: 'x-api-key' }, 'x-api-key')

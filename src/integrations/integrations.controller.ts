@@ -7,6 +7,7 @@ import {
 } from '@nestjs/swagger';
 import { Public } from '../common/decorators/public.decorator.js';
 import { ApiKeyGuard } from '../common/guards/api-key.guard.js';
+import { ApiCommonErrorResponses } from '../common/swagger/api-responses.decorator.js';
 import { IntegrationsService } from './integrations.service.js';
 
 @Controller('integrations')
@@ -17,6 +18,7 @@ export class IntegrationsController {
   @Get('vehicles/:plate/maintenances')
   @Public()
   @UseGuards(ApiKeyGuard)
+  @ApiCommonErrorResponses([401, 404, 500])
   @ApiSecurity('x-api-key')
   @ApiOperation({ summary: 'Consultar historial de mantenimiento para una integración externa' })
   @ApiOkResponse({

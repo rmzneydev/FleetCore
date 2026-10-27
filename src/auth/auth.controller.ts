@@ -10,11 +10,10 @@ import { UserRole } from './role.enum.js';
 import { AuthService } from './auth.service.js';
 import {
   ApiBearerAuth,
-  ApiCreatedResponse,
-  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { ApiCommonErrorResponses, ApiEnvelopeResponse } from '../common/swagger/api-responses.decorator.js';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -24,7 +23,8 @@ export class AuthController {
   @Public()
   @Post('register')
   @ApiOperation({ summary: 'Registrar usuario con rol ADMIN o TECHNICIAN' })
-  @ApiCreatedResponse({ description: 'Usuario registrado y token emitido' })
+  @ApiCommonErrorResponses([400, 409, 500])
+  @ApiEnvelopeResponse(201, 'Usuario registrado y token emitido')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto, dto.role);
   }
@@ -32,7 +32,8 @@ export class AuthController {
   @Public()
   @Post('login')
   @ApiOperation({ summary: 'Iniciar sesión y obtener JWT' })
-  @ApiOkResponse({ description: 'Autenticación correcta' })
+  @ApiCommonErrorResponses([400, 401, 500])
+  @ApiEnvelopeResponse(200, 'Autenticación correcta; devuelve JWT y usuario')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
@@ -41,7 +42,8 @@ export class AuthController {
   @Post('users')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Crear usuario con cualquier rol (ADMIN)' })
-  @ApiCreatedResponse({ description: 'Usuario creado' })
+  @ApiCommonErrorResponses([400, 401, 403, 409, 500])
+  @ApiEnvelopeResponse(201, 'Usuario creado; requiere rol ADMIN')
   createUser(@Body() dto: AdminCreateUserDto) {
     return this.authService.createUser(dto, dto.role);
   }
@@ -49,7 +51,8 @@ export class AuthController {
   @Get('me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Obtener el perfil del usuario autenticado' })
-  @ApiOkResponse({ description: 'Perfil del usuario' })
+  @ApiCommonErrorResponses([401, 500])
+  @ApiEnvelopeResponse(200, 'Perfil del usuario autenticado')
   getProfile(@CurrentUser() user: AuthenticatedUser) {
     return this.authService.getProfile(user);
   }
