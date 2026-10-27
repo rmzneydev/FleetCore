@@ -7,12 +7,12 @@ import { InitialFleetSchema1761572400000 } from './database/migrations/InitialFl
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
+import { IntegrationsModule } from './integrations/integrations.module.js';
 import { MaintenanceModule } from './maintenance/maintenance.module.js';
 import { MechanicsModule } from './mechanics/mechanics.module.js';
 import { VehiclesModule } from './vehicles/vehicles.module.js';
 import { WorkshopsModule } from './workshops/workshops.module.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
-import { ApiKeyGuard } from './common/guards/api-key.guard.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { RolesGuard } from './common/guards/roles.guard.js';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor.js';
@@ -21,6 +21,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor.
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
+    IntegrationsModule,
     VehiclesModule,
     MechanicsModule,
     WorkshopsModule,
@@ -51,7 +52,6 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor.
   controllers: [AppController],
   providers: [
     AppService,
-    ApiKeyGuard,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
