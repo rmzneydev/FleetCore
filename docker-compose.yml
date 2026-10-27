@@ -28,6 +28,18 @@ services:
     networks:
       - backend
     command: ["npm", "run", "start:docker"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:' + process.env.PORT).then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 45s
 
   db:
     image: postgres:16-alpine

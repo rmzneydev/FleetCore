@@ -31,6 +31,26 @@
 $ npm install
 ```
 
+## Demo data
+
+After configuring the database connection in `.env`, populate the database with:
+
+```bash
+npm run seed
+```
+
+The command builds the project, applies pending TypeORM migrations, and inserts or updates the demo records without duplicating them. It does not reset unrelated database records.
+
+Demo accounts:
+
+| Role | Email | Password |
+| --- | --- | --- |
+| ADMIN | `seed.admin@fleetcore.test` | `FleetCoreAdmin123!` |
+| TECHNICIAN | `seed.technician1@fleetcore.test` | `FleetCoreTech123!` |
+| TECHNICIAN | `seed.technician2@fleetcore.test` | `FleetCoreTech456!` |
+
+Override demo passwords with `SEED_ADMIN_PASSWORD`, `SEED_TECHNICIAN_ONE_PASSWORD`, and `SEED_TECHNICIAN_TWO_PASSWORD`. These credentials are for local testing only.
+
 ## Compile and run the project
 
 ```bash
