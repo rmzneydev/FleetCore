@@ -17,8 +17,8 @@ import { MechanicStatus } from '../mechanic-status.enum.js';
 
 @Entity('mechanics')
 export class Mechanic {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Column({ type: 'varchar', length: 150 })
   name!: string;
@@ -38,7 +38,7 @@ export class Mechanic {
   user!: Relation<User> | null;
 
   @RelationId((mechanic: Mechanic) => mechanic.user)
-  userId!: string | null;
+  userId!: number | null;
 
   @OneToMany(() => Maintenance, (maintenance) => maintenance.mechanic)
   maintenances!: Relation<Maintenance[]>;

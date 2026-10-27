@@ -21,8 +21,8 @@ import { MaintenanceType } from '../maintenance-type.enum.js';
 @Index('IDX_maintenances_mechanic_status_schedule', ['mechanic', 'status', 'scheduledAt'])
 @Index('IDX_maintenances_workshop_status', ['workshop', 'status'])
 export class Maintenance {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Column({ type: 'enum', enum: MaintenanceType })
   type!: MaintenanceType;
@@ -59,14 +59,14 @@ export class Maintenance {
   vehicle!: Relation<Vehicle>;
 
   @RelationId((maintenance: Maintenance) => maintenance.vehicle)
-  vehicleId!: string;
+  vehicleId!: number;
 
   @ManyToOne(() => Mechanic, (mechanic) => mechanic.maintenances, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'mechanic_id' })
   mechanic!: Relation<Mechanic>;
 
   @RelationId((maintenance: Maintenance) => maintenance.mechanic)
-  mechanicId!: string;
+  mechanicId!: number;
 
   @ManyToOne(() => Workshop, (workshop) => workshop.maintenances, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'workshop_id' })

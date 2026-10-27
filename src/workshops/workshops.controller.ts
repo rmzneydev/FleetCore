@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { WorkshopsService } from './workshops.service.js';
 import { CreateWorkshopDto } from './dto/create-workshop.dto.js';
 import { UpdateWorkshopDto } from './dto/update-workshop.dto.js';
@@ -28,9 +28,9 @@ export class WorkshopsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Consultar taller por UUID' })
+  @ApiOperation({ summary: 'Consultar taller por ID' })
   @ApiOkResponse({ description: 'Taller encontrado' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.workshopsService.findOne(id);
   }
 
@@ -38,7 +38,7 @@ export class WorkshopsController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Actualizar un taller (ADMIN)' })
   @ApiOkResponse({ description: 'Taller actualizado' })
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateWorkshopDto: UpdateWorkshopDto) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateWorkshopDto: UpdateWorkshopDto) {
     return this.workshopsService.update(id, updateWorkshopDto);
   }
 
@@ -46,7 +46,7 @@ export class WorkshopsController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Inactivar un taller (ADMIN)' })
   @ApiOkResponse({ description: 'Taller inactivado' })
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.workshopsService.remove(id);
   }
 }

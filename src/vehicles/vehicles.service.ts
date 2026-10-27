@@ -20,7 +20,7 @@ export class VehiclesService {
     return this.vehicles.find({ order: { createdAt: 'DESC' } });
   }
 
-  findOne(id: string): Promise<Vehicle> {
+  findOne(id: number): Promise<Vehicle> {
     return this.findById(id);
   }
 
@@ -30,20 +30,20 @@ export class VehiclesService {
     return vehicle;
   }
 
-  async update(id: string, dto: UpdateVehicleDto): Promise<Vehicle> {
+  async update(id: number, dto: UpdateVehicleDto): Promise<Vehicle> {
     const vehicle = await this.findById(id);
     Object.assign(vehicle, dto);
     if (dto.plate) vehicle.plate = dto.plate.trim().toUpperCase();
     return this.vehicles.save(vehicle);
   }
 
-  async remove(id: string): Promise<Vehicle> {
+  async remove(id: number): Promise<Vehicle> {
     const vehicle = await this.findById(id);
     vehicle.status = VehicleStatus.INACTIVE;
     return this.vehicles.save(vehicle);
   }
 
-  private async findById(id: string): Promise<Vehicle> {
+  private async findById(id: number): Promise<Vehicle> {
     const vehicle = await this.vehicles.findOneBy({ id });
     if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
     return vehicle;

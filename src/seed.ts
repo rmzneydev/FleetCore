@@ -136,7 +136,6 @@ async function seed(): Promise<void> {
 
       const maintenanceData = [
         {
-          id: '00000000-0000-4000-8000-000000000001',
           type: MaintenanceType.PREVENTIVE,
           description: 'Cambio preventivo de aceite y filtros',
           mileage: 45000,
@@ -152,7 +151,6 @@ async function seed(): Promise<void> {
           workshop: workshopsByName.get('Taller Centro')!,
         },
         {
-          id: '00000000-0000-4000-8000-000000000002',
           type: MaintenanceType.CORRECTIVE,
           description: 'Diagnóstico y reparación de sistema de transmisión',
           mileage: 62000,
@@ -170,7 +168,13 @@ async function seed(): Promise<void> {
       ];
 
       for (const maintenanceDataItem of maintenanceData) {
-        const existing = await maintenancesRepository.findOneBy({ id: maintenanceDataItem.id });
+        const existing = await maintenancesRepository.findOne({
+          where: {
+            vehicle: { id: maintenanceDataItem.vehicle.id },
+            description: maintenanceDataItem.description,
+            scheduledAt: maintenanceDataItem.scheduledAt,
+          },
+        });
         const maintenance = existing ?? maintenancesRepository.create();
         Object.assign(maintenance, maintenanceDataItem);
         await maintenancesRepository.save(maintenance);

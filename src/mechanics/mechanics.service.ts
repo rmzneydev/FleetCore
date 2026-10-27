@@ -31,11 +31,11 @@ export class MechanicsService {
     return this.mechanics.find({ order: { createdAt: 'DESC' } });
   }
 
-  findOne(id: string): Promise<Mechanic> {
+  findOne(id: number): Promise<Mechanic> {
     return this.findById(id);
   }
 
-  async update(id: string, dto: UpdateMechanicDto): Promise<Mechanic> {
+  async update(id: number, dto: UpdateMechanicDto): Promise<Mechanic> {
     const mechanic = await this.findById(id);
     const { userId, ...updates } = dto;
     Object.assign(mechanic, updates);
@@ -44,19 +44,19 @@ export class MechanicsService {
     return this.mechanics.save(mechanic);
   }
 
-  async remove(id: string): Promise<Mechanic> {
+  async remove(id: number): Promise<Mechanic> {
     const mechanic = await this.findById(id);
     mechanic.status = MechanicStatus.INACTIVE;
     return this.mechanics.save(mechanic);
   }
 
-  private async findById(id: string): Promise<Mechanic> {
+  private async findById(id: number): Promise<Mechanic> {
     const mechanic = await this.mechanics.findOneBy({ id });
     if (!mechanic) throw new NotFoundException('Mecánico no encontrado');
     return mechanic;
   }
 
-  private async findTechnicianUser(id: string): Promise<User> {
+  private async findTechnicianUser(id: number): Promise<User> {
     const user = await this.users.findOneBy({ id });
     if (!user || user.role !== UserRole.TECHNICIAN) {
       throw new BadRequestException('La cuenta vinculada debe existir y tener rol TECHNICIAN');

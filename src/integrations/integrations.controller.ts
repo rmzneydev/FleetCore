@@ -27,7 +27,7 @@ export class IntegrationsController {
         statusCode: 200,
         data: {
           vehicle: {
-            id: 'b6f83a26-e64b-4883-9c89-53591c2f102f',
+            id: 1,
             plate: 'ABC123',
             brand: 'Chevrolet',
             model: 'NPR',
@@ -35,15 +35,15 @@ export class IntegrationsController {
           },
           maintenances: [
             {
-              id: 'e312779f-ef56-4f17-8494-1404a9b131ef',
+              id: 1,
               type: 'PREVENTIVE',
               status: 'COMPLETED',
               description: 'Cambio de aceite y filtros',
               mileage: 45000,
               cost: '350000.00',
               finishedAt: '2026-09-15T16:30:00.000Z',
-              mechanic: { id: '3e25ec77-b4d3-464c-9fbe-9f607d9c99f0', name: 'Carlos Pérez' },
-              workshop: { id: '4c4a0f1b-df9b-4373-a27d-93125d6b77d8', name: 'Taller Norte' },
+              mechanic: { id: 1, name: 'Carlos Pérez' },
+              workshop: { id: 1, name: 'Taller Norte' },
             },
           ],
         },

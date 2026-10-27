@@ -12,8 +12,8 @@ import { WorkshopStatus } from '../workshop-status.enum.js';
 
 @Entity('workshops')
 export class Workshop {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Column({ type: 'varchar', length: 150 })
   name!: string;

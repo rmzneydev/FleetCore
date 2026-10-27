@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { MechanicsService } from './mechanics.service.js';
 import { CreateMechanicDto } from './dto/create-mechanic.dto.js';
 import { UpdateMechanicDto } from './dto/update-mechanic.dto.js';
@@ -28,9 +28,9 @@ export class MechanicsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Consultar mecánico por UUID' })
+  @ApiOperation({ summary: 'Consultar mecánico por ID' })
   @ApiOkResponse({ description: 'Mecánico encontrado' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.mechanicsService.findOne(id);
   }
 
@@ -38,7 +38,7 @@ export class MechanicsController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Actualizar un mecánico (ADMIN)' })
   @ApiOkResponse({ description: 'Mecánico actualizado' })
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateMechanicDto: UpdateMechanicDto) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateMechanicDto: UpdateMechanicDto) {
     return this.mechanicsService.update(id, updateMechanicDto);
   }
 
@@ -46,7 +46,7 @@ export class MechanicsController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Inactivar un mecánico (ADMIN)' })
   @ApiOkResponse({ description: 'Mecánico inactivado' })
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.mechanicsService.remove(id);
   }
 }

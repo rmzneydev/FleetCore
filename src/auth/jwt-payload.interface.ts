@@ -1,13 +1,13 @@
 import { UserRole } from './role.enum.js';
 
 export interface JwtPayload {
-  sub: string;
+  sub: number;
   email: string;
   role: UserRole;
 }
 
 export interface AuthenticatedUser {
-  userId: string;
+  userId: number;
   email: string;
   role: UserRole;
 }

@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString, IsUUID, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsInt, IsOptional, IsString, MaxLength, Min, MinLength } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { MechanicStatus } from '../mechanic-status.enum.js';
 
@@ -28,8 +28,9 @@ export class UpdateMechanicDto {
   @IsEnum(MechanicStatus)
   status?: MechanicStatus;
 
-  @ApiPropertyOptional({ example: 'd2f73bd3-cb34-4f90-bd7a-97679a913801' })
+  @ApiPropertyOptional({ example: 2, minimum: 1 })
   @IsOptional()
-  @IsUUID()
-  userId?: string;
+  @IsInt()
+  @Min(1)
+  userId?: number;
 }

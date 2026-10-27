@@ -21,23 +21,23 @@ export class WorkshopsService {
     });
   }
 
-  findOne(id: string): Promise<Workshop> {
+  findOne(id: number): Promise<Workshop> {
     return this.findById(id);
   }
 
-  async update(id: string, dto: UpdateWorkshopDto): Promise<Workshop> {
+  async update(id: number, dto: UpdateWorkshopDto): Promise<Workshop> {
     const workshop = await this.findById(id);
     Object.assign(workshop, dto);
     return this.workshops.save(workshop);
   }
 
-  async remove(id: string): Promise<Workshop> {
+  async remove(id: number): Promise<Workshop> {
     const workshop = await this.findById(id);
     workshop.status = WorkshopStatus.INACTIVE;
     return this.workshops.save(workshop);
   }
 
-  private async findById(id: string): Promise<Workshop> {
+  private async findById(id: number): Promise<Workshop> {
     const workshop = await this.workshops.findOneBy({ id });
     if (!workshop) throw new NotFoundException('Taller no encontrado');
     return workshop;

@@ -3,7 +3,7 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
+  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -61,21 +61,21 @@ export class MaintenanceController {
   @Get('vehicle/:id/history')
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Consultar historial completado/cancelado de un vehículo (ADMIN)' })
-  findVehicleHistory(@Param('id', ParseUUIDPipe) id: string) {
+  findVehicleHistory(@Param('id', ParseIntPipe) id: number) {
     return this.maintenanceService.findVehicleHistory(id);
   }
 
   @Get('vehicle/:id')
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Listar mantenimientos de un vehículo (ADMIN)' })
-  findByVehicle(@Param('id', ParseUUIDPipe) id: string) {
+  findByVehicle(@Param('id', ParseIntPipe) id: number) {
     return this.maintenanceService.findByVehicle(id);
   }
 
   @Get('mechanic/:id')
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Listar mantenimientos asignados a un mecánico (ADMIN)' })
-  findByMechanic(@Param('id', ParseUUIDPipe) id: string) {
+  findByMechanic(@Param('id', ParseIntPipe) id: number) {
     return this.maintenanceService.findByMechanic(id);
   }
 
@@ -84,7 +84,7 @@ export class MaintenanceController {
   @ApiOperation({ summary: 'Cambiar estado y registrar cierre del mantenimiento' })
   @ApiOkResponse({ description: 'Estado del mantenimiento actualizado' })
   updateStatus(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateMaintenanceStatusDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {

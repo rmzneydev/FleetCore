@@ -10,8 +10,8 @@ import { UserRole } from './role.enum.js';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Index({ unique: true })
   @Column({ type: 'varchar', length: 255 })

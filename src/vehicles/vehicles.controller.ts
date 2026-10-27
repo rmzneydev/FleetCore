@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { VehiclesService } from './vehicles.service.js';
 import { CreateVehicleDto } from './dto/create-vehicle.dto.js';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto.js';
@@ -35,9 +35,9 @@ export class VehiclesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Consultar vehículo por UUID' })
+  @ApiOperation({ summary: 'Consultar vehículo por ID' })
   @ApiOkResponse({ description: 'Vehículo encontrado' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.vehiclesService.findOne(id);
   }
 
@@ -45,7 +45,7 @@ export class VehiclesController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Actualizar un vehículo (ADMIN)' })
   @ApiOkResponse({ description: 'Vehículo actualizado' })
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateVehicleDto: UpdateVehicleDto) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateVehicleDto: UpdateVehicleDto) {
     return this.vehiclesService.update(id, updateVehicleDto);
   }
 
@@ -53,7 +53,7 @@ export class VehiclesController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Inactivar un vehículo (ADMIN)' })
   @ApiOkResponse({ description: 'Vehículo inactivado' })
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.vehiclesService.remove(id);
   }
 }

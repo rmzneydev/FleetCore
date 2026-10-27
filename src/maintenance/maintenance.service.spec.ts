@@ -23,9 +23,9 @@ describe('MaintenanceService', () => {
         mileage: 1000,
         scheduledAt: '2026-11-02T15:00:00.000Z',
         scheduledEndAt: '2026-11-02T15:00:00.000Z',
-        vehicleId: 'b6f83a26-e64b-4883-9c89-53591c2f102f',
-        mechanicId: 'd2f73bd3-cb34-4f90-bd7a-97679a913801',
-        workshopId: '3d1c1c90-560f-41a3-b7d7-f299a7a5a55a',
+        vehicleId: 1,
+        mechanicId: 1,
+        workshopId: 1,
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
 
@@ -36,14 +36,14 @@ describe('MaintenanceService', () => {
     'rejects starting a maintenance when the same %s already has one in progress',
     async (resource) => {
       const currentMaintenance = {
-        id: 'maintenance-current',
-        vehicleId: 'vehicle-1',
-        mechanicId: 'mechanic-1',
+        id: 10,
+        vehicleId: 1,
+        mechanicId: 1,
         scheduledAt: new Date('2026-11-02T15:00:00.000Z'),
         scheduledEndAt: new Date('2026-11-02T16:00:00.000Z'),
         status: MaintenanceStatus.SCHEDULED,
       };
-      const conflictingMaintenance = { id: 'maintenance-other' };
+      const conflictingMaintenance = { id: 11 };
       const queryResults = [
         currentMaintenance,
         resource === 'vehicle' ? conflictingMaintenance : null,
@@ -65,11 +65,11 @@ describe('MaintenanceService', () => {
         save: vi.fn(),
       };
       const vehicleRepository = {
-        findOne: vi.fn().mockResolvedValue({ id: 'vehicle-1', plate: 'ABC123' }),
+        findOne: vi.fn().mockResolvedValue({ id: 1, plate: 'ABC123' }),
         save: vi.fn(),
       };
       const mechanicRepository = {
-        findOne: vi.fn().mockResolvedValue({ id: 'mechanic-1', userId: null }),
+        findOne: vi.fn().mockResolvedValue({ id: 1, userId: null }),
       };
       const userRepository = { findOneBy: vi.fn() };
       const repositories = new Map([
@@ -103,9 +103,9 @@ describe('MaintenanceService', () => {
 
   it('does not allow a technician to update a maintenance assigned to another user', async () => {
     const maintenance = {
-      id: 'maintenance-current',
-      vehicleId: 'vehicle-1',
-      mechanicId: 'mechanic-1',
+      id: 10,
+      vehicleId: 1,
+      mechanicId: 1,
       status: MaintenanceStatus.SCHEDULED,
     };
     const mechanicRepository = {
@@ -116,7 +116,7 @@ describe('MaintenanceService', () => {
     };
     const repositories = new Map([
       [Maintenance, maintenanceRepository],
-      [Vehicle, { findOne: vi.fn().mockResolvedValue({ id: 'vehicle-1' }) }],
+      [Vehicle, { findOne: vi.fn().mockResolvedValue({ id: 1 }) }],
       [Mechanic, mechanicRepository],
       [User, { findOneBy: vi.fn().mockResolvedValue({ id: 'technician-owner' }) }],
     ]);
@@ -146,15 +146,15 @@ describe('MaintenanceService', () => {
     'keeps the correct vehicle state when cancelling a %s maintenance',
     async (initialStatus, initialVehicleStatus, expectedVehicleStatus) => {
       const maintenance = {
-        id: 'maintenance-current',
-        vehicleId: 'vehicle-1',
-        mechanicId: 'mechanic-1',
+        id: 10,
+        vehicleId: 1,
+        mechanicId: 1,
         scheduledAt: new Date('2026-11-02T15:00:00.000Z'),
         scheduledEndAt: new Date('2026-11-02T16:00:00.000Z'),
         status: initialStatus,
       };
       const vehicle = {
-        id: 'vehicle-1',
+        id: 1,
         plate: 'ABC123',
         status: initialVehicleStatus,
       };

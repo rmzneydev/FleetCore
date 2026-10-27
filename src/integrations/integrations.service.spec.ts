@@ -9,22 +9,22 @@ import { IntegrationsService } from './integrations.service.js';
 describe('IntegrationsService', () => {
   it('returns only public vehicle fields and completed maintenance history', async () => {
     const vehicle = {
-      id: 'vehicle-id',
+      id: 1,
       plate: 'ABC123',
       brand: 'Chevrolet',
       model: 'NPR',
       status: VehicleStatus.AVAILABLE,
     };
     const completedMaintenance = {
-      id: 'maintenance-id',
+      id: 1,
       type: 'PREVENTIVE',
       status: MaintenanceStatus.COMPLETED,
       description: 'Cambio de aceite',
       mileage: 45000,
       finalCost: '350000.00',
       finishedAt: new Date('2026-09-15T16:30:00.000Z'),
-      mechanic: { id: 'mechanic-id', name: 'Carlos Pérez', email: 'private@example.test' },
-      workshop: { id: 'workshop-id', name: 'Taller Norte', address: 'Dirección privada' },
+      mechanic: { id: 1, name: 'Carlos Pérez', email: 'private@example.test' },
+      workshop: { id: 1, name: 'Taller Norte', address: 'Dirección privada' },
     };
     const vehicles = { findOneBy: vi.fn().mockResolvedValue(vehicle) };
     const maintenances = { find: vi.fn().mockResolvedValue([completedMaintenance]) };
@@ -38,7 +38,7 @@ describe('IntegrationsService', () => {
     expect(vehicles.findOneBy).toHaveBeenCalledWith({ plate: 'ABC123' });
     expect(maintenances.find).toHaveBeenCalledWith({
       where: {
-        vehicle: { id: 'vehicle-id' },
+        vehicle: { id: 1 },
         status: MaintenanceStatus.COMPLETED,
       },
       relations: { mechanic: true, workshop: true },
@@ -46,7 +46,7 @@ describe('IntegrationsService', () => {
     });
     expect(result).toEqual({
       vehicle: {
-        id: 'vehicle-id',
+        id: 1,
         plate: 'ABC123',
         brand: 'Chevrolet',
         model: 'NPR',
@@ -54,15 +54,15 @@ describe('IntegrationsService', () => {
       },
       maintenances: [
         {
-          id: 'maintenance-id',
+          id: 1,
           type: 'PREVENTIVE',
           status: 'COMPLETED',
           description: 'Cambio de aceite',
           mileage: 45000,
           cost: '350000.00',
           finishedAt: completedMaintenance.finishedAt,
-          mechanic: { id: 'mechanic-id', name: 'Carlos Pérez' },
-          workshop: { id: 'workshop-id', name: 'Taller Norte' },
+          mechanic: { id: 1, name: 'Carlos Pérez' },
+          workshop: { id: 1, name: 'Taller Norte' },
         },
       ],
     });

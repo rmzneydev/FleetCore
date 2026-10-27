@@ -131,7 +131,7 @@ export class MaintenanceService {
     });
   }
 
-  findMine(userId: string): Promise<Maintenance[]> {
+  findMine(userId: number): Promise<Maintenance[]> {
     return this.maintenances
       .createQueryBuilder('maintenance')
       .leftJoinAndSelect('maintenance.vehicle', 'vehicle')
@@ -143,7 +143,7 @@ export class MaintenanceService {
       .getMany();
   }
 
-  findByVehicle(vehicleId: string): Promise<Maintenance[]> {
+  findByVehicle(vehicleId: number): Promise<Maintenance[]> {
     return this.maintenances.find({
       where: { vehicle: { id: vehicleId } },
       relations: MAINTENANCE_RELATIONS,
@@ -151,7 +151,7 @@ export class MaintenanceService {
     });
   }
 
-  findVehicleHistory(vehicleId: string): Promise<Maintenance[]> {
+  findVehicleHistory(vehicleId: number): Promise<Maintenance[]> {
     return this.maintenances.find({
       where: {
         vehicle: { id: vehicleId },
@@ -162,7 +162,7 @@ export class MaintenanceService {
     });
   }
 
-  findByMechanic(mechanicId: string): Promise<Maintenance[]> {
+  findByMechanic(mechanicId: number): Promise<Maintenance[]> {
     return this.maintenances.find({
       where: { mechanic: { id: mechanicId } },
       relations: MAINTENANCE_RELATIONS,
@@ -171,7 +171,7 @@ export class MaintenanceService {
   }
 
   async updateStatus(
-    id: string,
+    id: number,
     dto: UpdateMaintenanceStatusDto,
     actor: AuthenticatedUser,
   ): Promise<Maintenance> {
@@ -292,7 +292,7 @@ export class MaintenanceService {
     return this.findOne(id);
   }
 
-  async findOne(id: string): Promise<Maintenance> {
+  async findOne(id: number): Promise<Maintenance> {
     const maintenance = await this.maintenances.findOne({
       where: { id },
       relations: MAINTENANCE_RELATIONS,

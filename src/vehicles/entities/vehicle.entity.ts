@@ -13,8 +13,8 @@ import { VehicleStatus } from '../vehicle-status.enum.js';
 
 @Entity('vehicles')
 export class Vehicle {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Index({ unique: true })
   @Column({ type: 'varchar', length: 20 })

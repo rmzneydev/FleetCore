@@ -17,7 +17,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   validate(payload: JwtPayload): AuthenticatedUser {
     if (
-      !payload.sub ||
+      !Number.isInteger(payload.sub) ||
+      payload.sub < 1 ||
       !payload.email ||
       !Object.values(UserRole).includes(payload.role)
     ) {
