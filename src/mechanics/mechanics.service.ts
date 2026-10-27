@@ -61,6 +61,11 @@ export class MechanicsService {
     if (!user || user.role !== UserRole.TECHNICIAN) {
       throw new BadRequestException('La cuenta vinculada debe existir y tener rol TECHNICIAN');
     }
+
+    const alreadyLinked = await this.mechanics.findOneBy({ user: { id } });
+    if (alreadyLinked) {
+      throw new BadRequestException('La cuenta TECHNICIAN ya está vinculada a un mecánico');
+    }
     return user;
   }
 }

@@ -7,6 +7,7 @@ import {
   OneToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
@@ -35,6 +36,9 @@ export class Mechanic {
   @OneToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'user_id' })
   user!: Relation<User> | null;
+
+  @RelationId((mechanic: Mechanic) => mechanic.user)
+  userId!: string | null;
 
   @OneToMany(() => Maintenance, (maintenance) => maintenance.mechanic)
   maintenances!: Relation<Maintenance[]>;

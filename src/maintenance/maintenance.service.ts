@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import type { AuthenticatedUser } from '../auth/jwt-payload.interface.js';
 import { UserRole } from '../auth/role.enum.js';
+import { User } from '../auth/user.entity.js';
 import { Mechanic } from '../mechanics/entities/mechanic.entity.js';
 import { MechanicStatus } from '../mechanics/mechanic-status.enum.js';
 import { Vehicle } from '../vehicles/entities/vehicle.entity.js';
@@ -176,6 +177,31 @@ export class MaintenanceService {
   ): Promise<Maintenance> {
     await this.dataSource.transaction(async (manager) => {
       const maintenances = manager.getRepository(Maintenance);
+      const current = await maintenances.findOneBy({ id });
+      if (!current) throw new NotFoundException('Mantenimiento no encontrado');
+
+      // Mantener el orden vehículo -> mecánico -> mantenimiento evita interbloqueos
+      // con la creación, que toma los locks de vehículo y mecánico en ese orden.
+      const vehicles = manager.getRepository(Vehicle);
+      const vehicle = await vehicles.findOne({
+        where: { id: current.vehicleId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
+
+      const mechanics = manager.getRepository(Mechanic);
+      const mechanic = await mechanics.findOne({
+        where: { id: current.mechanicId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!mechanic) throw new NotFoundException('Mecánico no encontrado');
+      const mechanicUser = mechanic.userId
+        ? await manager.getRepository(User).findOneBy({ id: mechanic.userId })
+        : null;
+      if (actor.role !== UserRole.ADMIN && mechanicUser?.id !== actor.userId) {
+        throw new ForbiddenException('Solo puedes actualizar mantenimientos asignados a tu cuenta');
+      }
+
       const maintenance = await maintenances
         .createQueryBuilder('maintenance')
         .setLock('pessimistic_write')
@@ -183,35 +209,38 @@ export class MaintenanceService {
         .getOne();
       if (!maintenance) throw new NotFoundException('Mantenimiento no encontrado');
 
-      const mechanics = manager.getRepository(Mechanic);
-      const mechanic = await mechanics.findOne({
-        where: { id: maintenance.mechanicId },
-        relations: { user: true },
-      });
-      if (!mechanic) throw new NotFoundException('Mecánico no encontrado');
-      if (actor.role !== UserRole.ADMIN && mechanic.user?.id !== actor.userId) {
-        throw new ForbiddenException('Solo puedes actualizar mantenimientos asignados a tu cuenta');
-      }
-
       if (!isAllowedMaintenanceTransition(maintenance.status, dto.status)) {
         throw new BadRequestException(
           `Transición inválida de ${maintenance.status} a ${dto.status}`,
         );
       }
 
-      const vehicles = manager.getRepository(Vehicle);
-      const vehicle = await vehicles.findOne({
-        where: { id: maintenance.vehicleId },
-        lock: { mode: 'pessimistic_write' },
-      });
-      if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
-
       if (dto.status === MaintenanceStatus.IN_PROGRESS) {
-        const competingMaintenance = await maintenances
+        const vehicleInProgress = await maintenances
           .createQueryBuilder('other')
           .where('other.vehicle_id = :vehicleId', { vehicleId: vehicle.id })
           .andWhere('other.id != :id', { id })
-          .andWhere('other.status IN (:...statuses)', { statuses: ACTIVE_STATUSES })
+          .andWhere('other.status = :status', { status: MaintenanceStatus.IN_PROGRESS })
+          .getOne();
+        if (vehicleInProgress) {
+          throw new ConflictException(`El vehículo ${vehicle.plate} ya tiene un mantenimiento en proceso`);
+        }
+
+        const mechanicInProgress = await maintenances
+          .createQueryBuilder('other')
+          .where('other.mechanic_id = :mechanicId', { mechanicId: mechanic.id })
+          .andWhere('other.id != :id', { id })
+          .andWhere('other.status = :status', { status: MaintenanceStatus.IN_PROGRESS })
+          .getOne();
+        if (mechanicInProgress) {
+          throw new ConflictException('El mecánico ya tiene un mantenimiento en proceso');
+        }
+
+        const overlappingMaintenance = await maintenances
+          .createQueryBuilder('other')
+          .where('other.vehicle_id = :vehicleId', { vehicleId: vehicle.id })
+          .andWhere('other.id != :id', { id })
+          .andWhere('other.status = :status', { status: MaintenanceStatus.SCHEDULED })
           .andWhere('other.scheduled_at < :scheduledEndAt', {
             scheduledEndAt: maintenance.scheduledEndAt,
           })
@@ -219,8 +248,10 @@ export class MaintenanceService {
             scheduledAt: maintenance.scheduledAt,
           })
           .getOne();
-        if (competingMaintenance) {
-          throw new ConflictException(`El vehículo ${vehicle.plate} ya tiene un mantenimiento activo`);
+        if (overlappingMaintenance) {
+          throw new ConflictException(
+            `El vehículo ${vehicle.plate} tiene otro mantenimiento programado en ese horario`,
+          );
         }
         vehicle.status = VehicleStatus.IN_MAINTENANCE;
       }
